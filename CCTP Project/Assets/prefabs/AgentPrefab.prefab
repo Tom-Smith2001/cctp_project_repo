@@ -344,7 +344,7 @@ MonoBehaviour:
   help: {fileID: 21300000, guid: 972935cf73fb7844283bcd6a6b1fdf4e, type: 3}
   injured: {fileID: 21300000, guid: 8c73e6c935f3f8a4cbf087bfc6c86f1a, type: 3}
   panic: {fileID: 21300000, guid: 2db7bcb8bf396884abef4157e1f140cc, type: 3}
-  stressed: {fileID: 0}
+  stressed: {fileID: 21300000, guid: 57cc4bcbd1394e6409404638859aa6fe, type: 3}
 --- !u!1 &7153392369795704483
 GameObject:
   m_ObjectHideFlags: 0
