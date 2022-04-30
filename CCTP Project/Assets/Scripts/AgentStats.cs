@@ -9,22 +9,20 @@ public class AgentStats : MonoBehaviour
 
     [Header("Characteristics")]
     public string name;
-    [Range(0, 20)] public int composure;  // how likely they are to panic, and how quickly they can calm down, composure also affects how easily other agents can gauge this agents current state.
-    [Range(0, 20)] public int decisiveness;  // how quickly they choose to act.
-    [Range(0, 20)] public int observation;  // how much they notice around them.
-    [Range(0, 20)] public int fortitude;  // how likely they are to get injured, fortitude also affects how quickly other agents can help if this agent is injured.
-    [Range(0, 20)] public int bravery;  // how likely they are to help others.
-    [Range(0, 20)] public int temperament; // how friendly this agent is to other agents, a higher temperament allows more 'friends', while a lower temperament allows more 'enemies'. Temperament also havily affects stress and happiness.
+    [Range(0, 20)] public float composure;  // how likely they are to panic, and how quickly they can calm down, composure also affects how easily other agents can gauge this agents current state, and how volatile an agent's hapiness is.
+    [Range(0, 20)] public float observation;  // how much they notice around them.
+    [Range(0, 20)] public float fortitude;  // how likely they are to get injured, fortitude also affects how quickly other agents can help if this agent is injured.
+    [Range(0, 20)] public float bravery;  // how likely they are to help others.
+    [Range(0, 20)] public float temperament; // how friendly this agent is to other agents, a higher temperament allows more 'friends', while a lower temperament allows more 'enemies'. Temperament also affects how easily an agent becomes stressed.
     [Range(0, 2)] public float speed;  // how fast they can run.
-    public int base_composure;  
-    public int base_decisiveness;  
-    public int base_observation;  
-    public int base_fortitude;  
-    public int base_bravery; 
+    public float base_composure;   
+    public float base_observation;  
+    public float base_fortitude;  
+    public float base_bravery; 
     public float base_speed;  
 
     [Header("State Info")]
-    [Range(0, 20)] public int currentPanic = 0;
+    [Range(0, 20)] public float currentPanic = 0;
     [Range(0, 20)] public int happiness = 0;
     [Range(0, 20)] public int stress = 0;
     public bool happy = false;
@@ -40,14 +38,16 @@ public class AgentStats : MonoBehaviour
     public bool due_home = false;
     public bool at_work = false;
     public bool at_home = false;
+    public bool attacking = false;
 
 
     [Header("Relationships")]
     public List<GameObject> friends;
-    [SerializeField] private int max_friends;
+    public int max_friends;
     public List<GameObject> enemies;
-    [SerializeField] private int max_enemies;
+    public int max_enemies;
     public GameObject helpTarget;
+    public GameObject attack_target;
 
     
     [Header("Routine Info")]    
@@ -211,7 +211,6 @@ public class AgentStats : MonoBehaviour
         GenerateStats();
         base_bravery = bravery;
         base_composure = composure;
-        base_decisiveness = decisiveness;
         base_fortitude = fortitude;
         base_observation = observation;
         base_speed = speed;
@@ -219,7 +218,7 @@ public class AgentStats : MonoBehaviour
         StartCoroutine(GenerateRelationships());
         StartCoroutine(InjuryCheck());
         StartCoroutine(StressCheck());
-        StartCoroutine(GenerateRelationships());
+        StartCoroutine(HappinessCheck());
 
     }
 
@@ -263,14 +262,13 @@ public class AgentStats : MonoBehaviour
     float CompareStats(GameObject other) 
     {
         AgentStats other_stats = other.GetComponent<AgentStats>();
-        int comp = Mathf.Abs(composure - other_stats.composure);
-        int dec = Mathf.Abs(decisiveness - other_stats.decisiveness);
-        int brav = Mathf.Abs(bravery - other_stats.bravery);
-        int temp = Mathf.Abs(temperament - other_stats.temperament);
+        int comp = (int)Mathf.Abs(composure - other_stats.composure);
+        int brav = (int)Mathf.Abs(bravery - other_stats.bravery);
+        int temp = (int)Mathf.Abs(temperament - other_stats.temperament);
 
         
 
-        return (comp + dec + brav + temp) / 4;
+        return (comp +  brav + temp) / 3;
     }
 
     private void Update()
@@ -310,7 +308,6 @@ public class AgentStats : MonoBehaviour
         //Name name = (Name)Random.Range(0, 49);
         this.transform.name = name.ToString();
         composure = GenStat();
-        decisiveness = GenStat();
         observation = GenStat();
         fortitude = GenStat();
         bravery = GenStat();
@@ -319,14 +316,16 @@ public class AgentStats : MonoBehaviour
 
         if (temperament < 10) 
         {
-            max_enemies = 3 + (10 - temperament);
+            max_enemies = (int)(3 + (10 - temperament));
             max_friends = 3;
         }
         else
         {
-            max_friends = 3 + (temperament - 10);
+            max_friends = (int)(3 + (temperament - 10));
             max_enemies = 3;
         }
+        stress = 0;
+        happiness = (int)temperament;
         generated = true;
     }
 
@@ -431,11 +430,9 @@ public class AgentStats : MonoBehaviour
         {
 
             TimeDateScript.WeekDay day = (TimeDateScript.WeekDay)Random.Range(0, 7);
-            Debug.Log("Trying " + day);
             if (!work_days.Contains(day))
             {
                 work_days.Add(day);
-                Debug.Log("Adding " + day);
             }
             else
             {
@@ -443,18 +440,15 @@ public class AgentStats : MonoBehaviour
                 if (!work_days.Contains(day))
                 {
                     work_days.Add(day);
-                    Debug.Log("Adding " + day);
                 }
             }
         }
         if (Random.Range(0, 100) < 50)
         {
-            Debug.Log(this.name + " will not be working nights.");
             night_shift = false;
         }
         else
-        {
-            Debug.Log(this.name + " will be working nights.");
+        { 
             night_shift = true;
         }
     }
@@ -463,7 +457,6 @@ public class AgentStats : MonoBehaviour
     {
         bravery = base_bravery;
         composure = base_composure;
-        decisiveness = base_decisiveness;
         fortitude = base_fortitude;
         observation = base_observation;
         speed = base_speed;
@@ -536,23 +529,32 @@ public class AgentStats : MonoBehaviour
     }
     IEnumerator StressCheck()
     {
+        
         while (true)
         {
+            if (stress > 20)
+                stress = 20;
+            else if (stress < 0)
+                stress = 0;
             if (at_work)
             {
-                yield return new WaitForSeconds(temperament / game_manager.GetComponent<TimeDateScript>().timescale);
+                yield return new WaitForSeconds((temperament / game_manager.GetComponent<TimeDateScript>().timescale) * 10);
                 if (Random.Range(0, 20) > temperament)
                 {
                     stress += 1;
                 }
             }
-            else if(at_home) 
+            else if (at_home)
             {
                 yield return new WaitForSeconds((20 - temperament) / game_manager.GetComponent<TimeDateScript>().timescale);
                 if (Random.Range(0, 20) < temperament)
                 {
                     stress -= 1;
                 }
+            }
+            else 
+            {
+                yield return new WaitForSeconds(temperament / game_manager.GetComponent<TimeDateScript>().timescale);
             }
 
             
@@ -563,17 +565,36 @@ public class AgentStats : MonoBehaviour
     {
         while (true)
         {
+
+            if (happiness > 20)
+                happiness = 20;
+            else if (happiness < 0)
+                happiness = 0;
             if (!at_work)
             {
-                yield return new WaitForSeconds((20 - temperament) / game_manager.GetComponent<TimeDateScript>().timescale);
-                if (Random.Range(0, 100) > temperament)
+                yield return new WaitForSeconds(composure / game_manager.GetComponent<TimeDateScript>().timescale);
+                int num = Random.Range(0, 5000);
+                if (num < temperament)
                 {
                     happiness += 1;
+
+                   // Debug.Log("Happiness up!");
+                }
+                else if (num < temperament * 2)
+                {
+                    happiness -= 1;
+
+                   // Debug.Log("Hapiness down.");
+                }
+                else 
+                {
+                    //Debug.Log("No change in hapiness.");           
                 }
             }
-            
-
-
+            else
+            {
+                yield return new WaitForSeconds(temperament / game_manager.GetComponent<TimeDateScript>().timescale);
+            }
         }
     }
 

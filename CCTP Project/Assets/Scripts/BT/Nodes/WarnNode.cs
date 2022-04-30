@@ -19,6 +19,10 @@ public class WarnNode : Node
     public override state Eval()
     {
         warning = my_stats.current_warning;
+        if (warning == null && my_stats.known_events.Count > 0)
+        {
+            warning = my_stats.known_events[my_stats.known_events.Count - 1];
+        }
         if (warning == null)
         {
             Debug.Log(my_stats.gameObject.name + " had nothing to warn their friends about, they are running home instead.");
@@ -30,7 +34,7 @@ public class WarnNode : Node
             return EventWarning();
 
         }
-        else 
+        else
         {
             return InjuredWarning();
         }

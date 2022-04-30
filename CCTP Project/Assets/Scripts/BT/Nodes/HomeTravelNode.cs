@@ -19,6 +19,11 @@ public class HomeTravelNode : Node
         }
         else
         {
+            if (my_stats.home.GetComponent<HouseScript>().fire) 
+            {
+                my_stats.due_home = false;
+                return state.failed;
+            }
             my_stats.gameObject.GetComponent<NavMeshAgent>().destination = my_stats.home.GetComponent<HouseScript>().entrance.transform.position;
             if (Vector3.Distance(my_stats.home.GetComponent<HouseScript>().entrance.transform.position, my_stats.gameObject.transform.position) < 1)
             {

@@ -20,11 +20,13 @@ public class InBuildingNode : Node
         if (my_stats.at_home && my_stats.currentPanic == 0 && !my_stats.due_home) 
         {
             my_stats.at_home = false;
+            my_stats.home.GetComponent<HouseScript>().occupants.Remove(agent);
         }
 
         if (my_stats.at_work && my_stats.currentPanic == 0 && !my_stats.due_work)
         {
             my_stats.at_work = false;
+            my_stats.work_place.GetComponent<WorkScript>().occupants.Remove(agent);
         }
 
         if (my_stats.at_work && my_stats.work_place.GetComponent<WorkScript>().fire) 
@@ -33,11 +35,13 @@ public class InBuildingNode : Node
             {
                 my_stats.injured = true;
                 my_stats.at_work = false;
+                my_stats.work_place.GetComponent<WorkScript>().occupants.Remove(agent);
             }
             else 
             {
                 my_stats.currentPanic = Random.Range(my_stats.composure, 20);
                 my_stats.at_work = false;
+                my_stats.work_place.GetComponent<WorkScript>().occupants.Remove(agent);
             }
         }
 
@@ -47,11 +51,13 @@ public class InBuildingNode : Node
             {
                 my_stats.injured = true;
                 my_stats.at_home = false;
+                my_stats.home.GetComponent<HouseScript>().occupants.Remove(agent);
             }
             else
             {
                 my_stats.currentPanic = Random.Range(my_stats.composure, 20);
                 my_stats.at_home = false;
+                my_stats.home.GetComponent<HouseScript>().occupants.Remove(agent);
             }
         }
 
@@ -61,6 +67,7 @@ public class InBuildingNode : Node
             nav.enabled = false;
             agent.GetComponent<MeshRenderer>().enabled = false;
             agent.transform.GetChild(0).GetComponent<MeshRenderer>().enabled = false;
+            agent.transform.GetChild(1).GetComponent<SpriteRenderer>().enabled = false;
             return state.passed;
         }
         else 
@@ -68,6 +75,7 @@ public class InBuildingNode : Node
             nav.enabled = true;
             agent.GetComponent<MeshRenderer>().enabled = true;
             agent.transform.GetChild(0).GetComponent<MeshRenderer>().enabled = true;
+            agent.transform.GetChild(1).GetComponent<SpriteRenderer>().enabled = true;
             return state.failed;        
         }
     }

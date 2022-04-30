@@ -13,6 +13,10 @@ public class CheckPanicNode : Node
 
     public override state Eval()
     {
+        if (my_stats.currentPanic < my_stats.composure) 
+        {
+            my_stats.panicked = false;        
+        }
         if (my_stats.panicked)
         {
             return state.passed;

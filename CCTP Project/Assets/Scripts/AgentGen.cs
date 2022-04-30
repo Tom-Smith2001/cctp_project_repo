@@ -1,25 +1,36 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class AgentGen : MonoBehaviour
 {
-    public int numOfAgents;
+    public static int numOfAgents;
     public GameObject[] spawnPoints;
     public GameObject spPrefab;
     public GameObject agentPrefab;
     public GameObject agentCont;
     public List<string> namesTaken;
 
-    
+    public NavMeshSurface surface;
 
 
     // Start is called before the first frame update
     void Start()
     {
+        if (numOfAgents == 0) 
+        {
+            numOfAgents = 100;        
+        }
         spawnPoints = GameObject.FindGameObjectsWithTag("Spawn");
         //PlaceSpawnPoints();
+        Bake();
         PlaceAgents();
+    }
+
+    public void Bake() 
+    {
+        surface.BuildNavMesh();        
     }
 
     // Update is called once per frame

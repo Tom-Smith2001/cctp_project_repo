@@ -23,12 +23,15 @@ public class NavScript : MonoBehaviour
     InBuildingNode in_building_node;
     HomeTravelNode home_travel_node;
     DecideHelpNode decide_help_node;
+    TryAttackNode try_attack_node;
+    DecideAttackNode decide_attack_node;
 
     Selector travelling_node;
     Sequence helping_injured_node;
     Selector flee_node;
     Sequence panic_node;
     Selector inactive_node;
+    Sequence attacking_node;
 
     Selector top_node;
 
@@ -46,6 +49,8 @@ public class NavScript : MonoBehaviour
 
     void CreateBehaviourTree() 
     {
+        try_attack_node = new TryAttackNode(myStats);
+        decide_attack_node = new DecideAttackNode(myStats);
         work_travel_node = new WorkTravelNode(myStats);
         warn_node = new WarnNode(myStats, this.gameObject);
         try_help_node = new TryHelpNode(myStats);
@@ -56,13 +61,14 @@ public class NavScript : MonoBehaviour
         home_travel_node = new HomeTravelNode(myStats);
         decide_help_node = new DecideHelpNode(myStats);
 
+        attacking_node = new Sequence(new List<Node> { decide_attack_node, try_attack_node });
         travelling_node = new Selector(new List<Node> { work_travel_node, home_travel_node });
         helping_injured_node = new Sequence(new List<Node> { decide_help_node, try_help_node });
         flee_node = new Selector(new List<Node> { warn_node, run_home_node });
         panic_node = new Sequence(new List<Node> { check_panic_node, flee_node });
         inactive_node = new Selector(new List<Node> { injured_node, in_building_node });
 
-        top_node = new Selector(new List<Node> { inactive_node, panic_node, helping_injured_node, travelling_node });
+        top_node = new Selector(new List<Node> { inactive_node, panic_node, helping_injured_node, travelling_node, attacking_node });
     }
 
    
@@ -70,18 +76,86 @@ public class NavScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        int green = 255 - myStats.currentPanic * 10;
+        int green = (int)(255 - myStats.currentPanic * 10);
         int red = 255;
         int blue = 0;
         if (myStats.injured)
         {
+            if (gameObject.GetComponent<UIManager>().sprite.sprite != gameObject.GetComponent<UIManager>().injured)
+            {
+                gameObject.GetComponent<UIManager>().sprite.sprite = gameObject.GetComponent<UIManager>().injured;
+                gameObject.GetComponent<UIManager>().awake_timer = 5;
+            }
+            
             green = 0;
+            red = 255;
+            blue = 0;
         }
-        if (myStats.helping) 
+        else if (myStats.helping)
         {
+            if (gameObject.GetComponent<UIManager>().sprite.sprite != gameObject.GetComponent<UIManager>().help)
+            {
+                gameObject.GetComponent<UIManager>().sprite.sprite = gameObject.GetComponent<UIManager>().help;
+                gameObject.GetComponent<UIManager>().awake_timer = 5;
+            }
             blue = 255;
             red = 0;
             green = 0;
+        }
+        else if (myStats.stressed)
+        {
+            if (gameObject.GetComponent<UIManager>().sprite.sprite != gameObject.GetComponent<UIManager>().stressed)
+            {
+                gameObject.GetComponent<UIManager>().sprite.sprite = gameObject.GetComponent<UIManager>().stressed;
+                gameObject.GetComponent<UIManager>().awake_timer = 5;
+            }
+            blue = 0;
+            red = 255;
+            green = (int)(255 - myStats.currentPanic * 10);
+        }
+        else if (myStats.attacking)
+        {
+            if (gameObject.GetComponent<UIManager>().sprite.sprite != gameObject.GetComponent<UIManager>().attack)
+            {
+                gameObject.GetComponent<UIManager>().sprite.sprite = gameObject.GetComponent<UIManager>().attack;
+                gameObject.GetComponent<UIManager>().awake_timer = 5;
+            }
+            blue = 255;
+            red = 255;
+            green = 0;
+        }
+        else if (myStats.panicked)
+        {
+            if (gameObject.GetComponent<UIManager>().sprite.sprite != gameObject.GetComponent<UIManager>().panic)
+            {
+                gameObject.GetComponent<UIManager>().sprite.sprite = gameObject.GetComponent<UIManager>().panic;
+                gameObject.GetComponent<UIManager>().awake_timer = 5;
+            }
+            blue = 0;
+            red = 255;
+            green = (int)(255 - myStats.currentPanic * 10);
+        }
+        else if (myStats.happy)
+        {
+            if (gameObject.GetComponent<UIManager>().sprite.sprite != gameObject.GetComponent<UIManager>().happy)
+            {
+                gameObject.GetComponent<UIManager>().sprite.sprite = gameObject.GetComponent<UIManager>().happy;
+                gameObject.GetComponent<UIManager>().awake_timer = 5;
+            }
+            blue = 0;
+            red = 255;
+            green = (int)(255 - myStats.currentPanic * 10);
+        }
+        if (myStats.travelling)
+        {
+            if (gameObject.GetComponent<UIManager>().sprite.sprite != gameObject.GetComponent<UIManager>().def)
+            {
+                gameObject.GetComponent<UIManager>().sprite.sprite = gameObject.GetComponent<UIManager>().def;
+                gameObject.GetComponent<UIManager>().awake_timer = 5;
+            }
+            blue = 0;
+            red = 255;
+            green = (int)(255 - myStats.currentPanic * 10);
         }
         gameObject.GetComponent<Renderer>().material.color = new Color32((byte)red, (byte)green, (byte)blue, 1);
         
@@ -101,6 +175,40 @@ public class NavScript : MonoBehaviour
         }
         else
         {
+            myStats.wandering = true;
+            if (myStats.happy)
+            {
+                if (gameObject.GetComponent<UIManager>().sprite.sprite != gameObject.GetComponent<UIManager>().happy)
+                {
+                    gameObject.GetComponent<UIManager>().sprite.sprite = gameObject.GetComponent<UIManager>().happy;
+                    gameObject.GetComponent<UIManager>().awake_timer = 5;
+                }
+                blue = 0;
+                red = 255;
+                green = (int)(255 - myStats.currentPanic * 10);
+            }
+            else
+            {
+                if (gameObject.GetComponent<UIManager>().sprite.sprite != gameObject.GetComponent<UIManager>().def)
+                {
+                    gameObject.GetComponent<UIManager>().sprite.sprite = gameObject.GetComponent<UIManager>().def;
+                    gameObject.GetComponent<UIManager>().awake_timer = 5;
+                }
+                blue = 0;
+                red = 255;
+                green = (int)(255 - myStats.currentPanic * 10);
+            }
+            if (myStats.stressed)
+            {
+                if (gameObject.GetComponent<UIManager>().sprite.sprite != gameObject.GetComponent<UIManager>().stressed)
+                {
+                    gameObject.GetComponent<UIManager>().sprite.sprite = gameObject.GetComponent<UIManager>().stressed;
+                    gameObject.GetComponent<UIManager>().awake_timer = 5;
+                }
+                blue = 0;
+                red = 255;
+                green = (int)(255 - myStats.currentPanic * 10);
+            }
             Vector3 lookTarget = new Vector3(moveTargetTransform.x, 1, moveTargetTransform.z);
             //transform.LookAt(lookTarget);
             navMeshAgent.destination = moveTargetTransform;
@@ -172,7 +280,11 @@ public class NavScript : MonoBehaviour
             {
                 myStats.due_work = false;            
             }
-        }    
+        }
+        else
+        {
+            myStats.due_work = false;
+        }
     }
 
     private void CheckSleep()

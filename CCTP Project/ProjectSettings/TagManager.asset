@@ -11,6 +11,7 @@ TagManager:
   - Event
   - House
   - Work
+  - Ground
   layers:
   - Default
   - TransparentFX
