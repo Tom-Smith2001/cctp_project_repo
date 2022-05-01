@@ -4,25 +4,28 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
+//Code written by Tom Smith - Thomas19.Smith@live.uwe.ac.uk
+
 public class UIScript : MonoBehaviour
 {
-    public GameObject highlighted_object;
-    public GameObject stats_panel;
-    public GameObject routine_panel;
-    public GameObject HUD;
-    public GameObject PauseScreen;
-    public bool paused;
-    public Text stats_name;
-    public Text stats_name2;
-    public Text stats_info;
-    public Text stats_info2;
-    public Text routine_info;
-    public Text routine_info2;
-    public Text time_date;
+    public GameObject highlighted_object; // the object highlighted by the user
+    public GameObject stats_panel; //UI panel
+    public GameObject routine_panel; //UI panel
+    public GameObject HUD; // The HUD canvas itself
+    public GameObject PauseScreen; // The pause canvas
+    public bool paused; //for managing pause states
+    public Text stats_name;         //
+    public Text stats_name2;        //
+    public Text stats_info;         //
+    public Text stats_info2;        // Text components of UI
+    public Text routine_info;       //  
+    public Text routine_info2;      //
+    public Text time_date;          //
 
     // Start is called before the first frame update
     void Start()
     {
+        //alwasy start unpaused with a clear UI
         paused = false;
         stats_panel.SetActive(false);
         routine_panel.SetActive(false);
@@ -31,6 +34,7 @@ public class UIScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //In case pause states become un-synced
         if (!paused && PauseScreen.activeInHierarchy) 
         {
             Unpause();        
@@ -39,6 +43,7 @@ public class UIScript : MonoBehaviour
         {
             Pause();        
         }
+        //escape will pause / unpause the system
         if (Input.GetKeyUp(KeyCode.Escape)) 
         {
             if (!paused)
@@ -50,15 +55,15 @@ public class UIScript : MonoBehaviour
                 Unpause();            
             }
         }
-        double ts = System.Math.Round(this.GetComponent<TimeDateScript>().timescale, 2);
+        double ts = System.Math.Round(this.GetComponent<TimeDateScript>().timescale, 2); //round timescale for displaying on HUD
         time_date.text = "Timescale = " + ts + "X";
         if (highlighted_object == null) 
         {
-            stats_panel.SetActive(false);
-            routine_panel.SetActive(false);
+            stats_panel.SetActive(false);   //hide info panels if no object is highlighted
+            routine_panel.SetActive(false); //
             return;
         }
-        if (highlighted_object.tag == "Agent")
+        if (highlighted_object.tag == "Agent") //set up the UI for if an agent is highlighted
         {
             AgentStats ags = highlighted_object.GetComponent<AgentStats>();
             stats_name.text = highlighted_object.name;
@@ -106,7 +111,7 @@ public class UIScript : MonoBehaviour
             stats_panel.SetActive(true);
             routine_panel.SetActive(true);
         }
-        else if (highlighted_object.tag == "Work" || highlighted_object.tag == "House" || highlighted_object.tag == "Event")
+        else if (highlighted_object.tag == "Work" || highlighted_object.tag == "House" || highlighted_object.tag == "Event") //set up UI for if a building is highlighted, need event tag in case the building is on fire and tagged as an event
         {
             stats_name.text = highlighted_object.name;
             if (highlighted_object.GetComponent<WorkScript>()!= null && highlighted_object.GetComponent<WorkScript>().fire) 
@@ -152,6 +157,8 @@ public class UIScript : MonoBehaviour
             routine_panel.SetActive(false);
         }
     }
+
+    //pause and unpause functions
     public void Pause()
     {
         paused = true;
@@ -165,6 +172,7 @@ public class UIScript : MonoBehaviour
         PauseScreen.SetActive(false);
     }
 
+    // function called when the quit button is clicked in pause menu
     public void MainMenu() 
     {
 

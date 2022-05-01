@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+//Code written by Tom Smith - Thomas19.Smith@live.uwe.ac.uk
+
 public class ReactScript : MonoBehaviour
 {
     FOVScript vision;
@@ -11,9 +13,10 @@ public class ReactScript : MonoBehaviour
 
     private void Start()
     {
+        //set relevant variables
         myStats = gameObject.GetComponent<AgentStats>();
         vision = gameObject.GetComponent<FOVScript>();
-        StartCoroutine(CalmDown(myStats.composure));
+        StartCoroutine(CalmDown(myStats.composure)); //starts a continuous calming coroutine to lose panic as time progresses
         gameManager = GameObject.FindGameObjectWithTag("GameManager");
     }
 
@@ -21,35 +24,35 @@ public class ReactScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        ClampStats();
+        ClampStats(); // clamp stats every fram
 
         if (myStats.currentPanic > 20) 
         {
-            myStats.currentPanic = 20;        
+            myStats.currentPanic = 20; //panic cannot exceed 20       
         }
-        if (!myStats.panicked && myStats.currentPanic > myStats.composure) 
+        if (!myStats.panicked && myStats.currentPanic > myStats.composure) //panicked state occurs when an agents panic exceeds their composure
         {
             myStats.panicked = true;
             myStats.running = true;
-            gameObject.GetComponent<NavScript>().updateSpeed();
+            gameObject.GetComponent<NavScript>().updateSpeed(); //agents run when panicking
         }
-        if (myStats.panicked && myStats.currentPanic < myStats.composure / 2) 
+        if (myStats.panicked && myStats.currentPanic < myStats.composure / 2) //stop panicking once panic is low enough
         {
             myStats.panicked = false;
             myStats.running = false;
             gameObject.GetComponent<NavScript>().updateSpeed();
         }
 
-        if (myStats.helping && myStats.helpTarget.GetComponent<AgentStats>().injured == false)
+        if (myStats.helping && myStats.helpTarget.GetComponent<AgentStats>().injured == false) //stop trying to help someone if they're not injured
         {
             myStats.helping = false;
         }
 
-        if (myStats.due_home && !myStats.at_home)
+        if (myStats.due_home && !myStats.at_home) //start travelling home when due
         {
             myStats.travelling = true;
         }
-        else if (myStats.due_work && !myStats.at_work)
+        else if (myStats.due_work && !myStats.at_work) //start travelling to work when due
         {
             myStats.travelling = true;
         }
@@ -61,6 +64,7 @@ public class ReactScript : MonoBehaviour
 
     }
 
+    //all stats must remain between 1 and 20
     public void ClampStats() 
     {
         if (myStats.composure > 20)

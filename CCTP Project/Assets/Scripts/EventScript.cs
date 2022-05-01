@@ -2,6 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
+
+//Code written by Tom Smith - Thomas19.Smith@live.uwe.ac.uk
+
 public class EventScript : MonoBehaviour
 {
     public float timer = 60;
@@ -21,7 +25,7 @@ public class EventScript : MonoBehaviour
 
     public void InjureNearby() 
     {
-        foreach (Collider a in Physics.OverlapSphere(this.transform.position, 15, agents))
+        foreach (Collider a in Physics.OverlapSphere(this.transform.position, 5, agents))
         {
             Debug.Log(a.name);
             GameObject agent = a.gameObject;

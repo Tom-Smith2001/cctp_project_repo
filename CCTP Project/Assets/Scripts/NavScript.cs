@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
+
+//Code written by Tom Smith - Thomas19.Smith@live.uwe.ac.uk
+
 public class NavScript : MonoBehaviour
 {
     public Vector3 moveTargetTransform;
@@ -102,11 +105,11 @@ public class NavScript : MonoBehaviour
             red = 0;
             green = 0;
         }
-        else if (myStats.stressed)
+        else if (myStats.panicked)
         {
-            if (gameObject.GetComponent<UIManager>().sprite.sprite != gameObject.GetComponent<UIManager>().stressed)
+            if (gameObject.GetComponent<UIManager>().sprite.sprite != gameObject.GetComponent<UIManager>().panic)
             {
-                gameObject.GetComponent<UIManager>().sprite.sprite = gameObject.GetComponent<UIManager>().stressed;
+                gameObject.GetComponent<UIManager>().sprite.sprite = gameObject.GetComponent<UIManager>().panic;
                 gameObject.GetComponent<UIManager>().awake_timer = 5;
             }
             blue = 0;
@@ -124,11 +127,11 @@ public class NavScript : MonoBehaviour
             red = 255;
             green = 0;
         }
-        else if (myStats.panicked)
+        else if (myStats.stressed)
         {
-            if (gameObject.GetComponent<UIManager>().sprite.sprite != gameObject.GetComponent<UIManager>().panic)
+            if (gameObject.GetComponent<UIManager>().sprite.sprite != gameObject.GetComponent<UIManager>().stressed)
             {
-                gameObject.GetComponent<UIManager>().sprite.sprite = gameObject.GetComponent<UIManager>().panic;
+                gameObject.GetComponent<UIManager>().sprite.sprite = gameObject.GetComponent<UIManager>().stressed;
                 gameObject.GetComponent<UIManager>().awake_timer = 5;
             }
             blue = 0;
@@ -146,7 +149,7 @@ public class NavScript : MonoBehaviour
             red = 255;
             green = (int)(255 - myStats.currentPanic * 10);
         }
-        if (myStats.travelling)
+        else if (myStats.travelling)
         {
             if (gameObject.GetComponent<UIManager>().sprite.sprite != gameObject.GetComponent<UIManager>().def)
             {

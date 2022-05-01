@@ -2,18 +2,26 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+
+
+//Code written by Tom Smith - Thomas19.Smith@live.uwe.ac.uk
+
 public class TryAttackNode : Node
 {
     private AgentStats my_stats;
     private GameObject target;
 
+    //constructor where variables are passed
     public TryAttackNode(AgentStats my_stats)
     {
         this.my_stats = my_stats;
         this.target = my_stats.attack_target;
     }
+
+    //evaluation function
     public override state Eval()
     {
+        //sets the target, but if they're already injured then do not attack.
         this.target = my_stats.attack_target;
         if (target == null || target.GetComponent<AgentStats>().injured)
         {
@@ -23,7 +31,7 @@ public class TryAttackNode : Node
         }
         else
         {
-           //If the injured agent is too close to an active event then give up helping them.
+            //if the attack target is too close a known event based on this agents bravery, then they wont attack them.
             foreach (GameObject e in my_stats.known_events)
             {
                 if (Vector3.Distance(target.transform.position, e.transform.position) < (20 - my_stats.bravery))
@@ -32,6 +40,8 @@ public class TryAttackNode : Node
                     return state.failed;
                 }
             }
+
+            //move to and then attack the target
             if (Vector3.Distance(my_stats.gameObject.transform.position, target.transform.position) > 3)
             {
                 my_stats.GetComponent<NavMeshAgent>().destination = target.transform.position;

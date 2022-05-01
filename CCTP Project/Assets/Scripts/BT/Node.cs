@@ -9,9 +9,11 @@ public abstract class Node
 
     public state ns { get { return node_state; } }
 
+    //the function called each time a node is checked
     public abstract state Eval();
 }
 
+//the states to be returned by node evaluations
 public enum state 
 {
     in_process,

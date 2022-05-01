@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
+
+//Code written by Tom Smith - Thomas19.Smith@live.uwe.ac.uk
+
 public class AgentGen : MonoBehaviour
 {
     public static int numOfAgents;

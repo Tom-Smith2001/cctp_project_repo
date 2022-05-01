@@ -2,17 +2,23 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+
+//Code written by Tom Smith - Thomas19.Smith@live.uwe.ac.uk
+
 public class TryHelpNode : Node
 {
     private AgentStats my_stats;
     private GameObject target;
-    bool healing;
 
+
+    //constructor where variables are passed
     public TryHelpNode(AgentStats my_stats)
     {
         this.my_stats = my_stats;
         this.target = my_stats.helpTarget;
     }
+
+    //evaluation function
     public override state Eval()
     {
         this.target = my_stats.helpTarget;
@@ -40,6 +46,7 @@ public class TryHelpNode : Node
                     }
                 }
             }
+            //return in process if they still havent reached their help target
             if (Vector3.Distance(my_stats.gameObject.transform.position, target.transform.position) > 3)
             {
                 my_stats.GetComponent<NavMeshAgent>().destination = target.transform.position;
@@ -47,11 +54,11 @@ public class TryHelpNode : Node
             }
             else 
             {
+                //help them when they reach them if they still need it
                 if (target.GetComponent<AgentStats>().injured && !target.GetComponent<AgentStats>().helped) 
                 {
                     my_stats.Heal(target);             
-                }
-                //help them.
+                }                
                 if (!target.GetComponent<AgentStats>().injured)
                 {
                     my_stats.StopHeal(target);

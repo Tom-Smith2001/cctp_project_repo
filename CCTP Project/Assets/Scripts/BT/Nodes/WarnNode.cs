@@ -3,12 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
+
+//Code written by Tom Smith - Thomas19.Smith@live.uwe.ac.uk
+
 public class WarnNode : Node 
 {
     private AgentStats my_stats;
     private GameObject agent;
     private GameObject warning;
 
+    //constructor where the agent and their stats are passed in, the warning is the event or injured agent that they are going to warn people about
     public WarnNode(AgentStats my_stats, GameObject agent)
     {
         this.my_stats = my_stats;
@@ -16,8 +20,11 @@ public class WarnNode : Node
         this.warning = this.my_stats.current_warning;
     }
 
+
+    //evaluate function to return the node state
     public override state Eval()
     {
+        //checks that there is definitely something to warn agents about, if not return failed.
         warning = my_stats.current_warning;
         if (warning == null && my_stats.known_events.Count > 0)
         {
@@ -30,18 +37,21 @@ public class WarnNode : Node
         }
         else if (warning.GetComponent<AgentStats>() == null)
         {
+            //if the warning object is not an agent then call the event warning function
 
             return EventWarning();
 
         }
         else
         {
+            //else call injury warning function
             return InjuredWarning();
         }
     }
 
     private state EventWarning()
     {
+        //bravery and temperament check for if they decide to warn anyone, if they have no friends they wont.
         if ((my_stats.bravery + my_stats.temperament) / 2 < my_stats.currentPanic || my_stats.friends.Count == 0)
         {
             Debug.Log(my_stats.gameObject.name + " decided not to warn any of their friends, they are running home instead.");
@@ -50,9 +60,10 @@ public class WarnNode : Node
         }
         else
         {
+            //warn each friend that doesnt currently know about the warning.
             foreach (GameObject friend in my_stats.friends)
             {
-                while (!friend.GetComponent<AgentStats>().known_events.Contains(warning) && !friend.GetComponent<AgentStats>().at_work && !friend.GetComponent<AgentStats>().at_home)
+                while (!friend.GetComponent<AgentStats>().known_events.Contains(warning) && !friend.GetComponent<AgentStats>().at_work && !friend.GetComponent<AgentStats>().at_home && !friend.GetComponent<AgentStats>().injured)
                 {
                     Debug.Log(my_stats.gameObject.name + " is trying to warn " + friend.name + " about " + warning.name);
                     if (Vector3.Distance(agent.transform.position, friend.transform.position) > 3)
@@ -74,6 +85,7 @@ public class WarnNode : Node
 
     private state InjuredWarning()
     {
+        //wont warn anyone if they have no friends
         if ( my_stats.friends.Count == 0)
         {
             Debug.Log(my_stats.gameObject.name + " had no friends to warn about " + warning.name + "'s injury, they are running home instead.");
@@ -86,6 +98,7 @@ public class WarnNode : Node
         }
         else
         {
+            //will warn their friends about the injured agent
             foreach (GameObject friend in my_stats.friends)
             {
                 while (friend.GetComponent<AgentStats>().helpTarget != warning && !friend.GetComponent<AgentStats>().at_work && !friend.GetComponent<AgentStats>().at_home && !friend.GetComponent<AgentStats>().helping)

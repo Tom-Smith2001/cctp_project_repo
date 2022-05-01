@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
+
+//Code written by Tom Smith - Thomas19.Smith@live.uwe.ac.uk
+
 public class AgentStats : MonoBehaviour
 {
     public GameObject game_manager;

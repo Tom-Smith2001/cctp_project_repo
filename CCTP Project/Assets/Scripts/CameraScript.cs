@@ -2,6 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
+
+//Code written by Tom Smith - Thomas19.Smith@live.uwe.ac.uk
+
 public class CameraScript : MonoBehaviour
 {
     private Camera cam;
